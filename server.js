@@ -46,7 +46,7 @@ app.get("/api/scrape", async (req, res) => {
     });
 
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-CA,en;q=0.9" });
-    await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(2500);
 
     const out = {};
