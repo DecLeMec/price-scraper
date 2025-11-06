@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@sparticuz/chromium": "^123.0.0",
     "express": "^4.19.2",
-    "playwright-core": "^1.46.0"
+    "playwright": "^1.46.0"
   },
   "scripts": {
     "start": "node server.js"
