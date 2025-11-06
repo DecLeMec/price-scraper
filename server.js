@@ -78,13 +78,8 @@ app.get("/api/scrape", async (req, res) => {
   }
 });
 
-// LOG ANY UNCAUGHT STUFF SO WE SEE IT IN RENDER LOGS
-process.on("unhandledRejection", err => {
-  console.error("UNHANDLED REJECTION:", err);
-});
-process.on("uncaughtException", err => {
-  console.error("UNCAUGHT EXCEPTION:", err);
-});
+process.on("unhandledRejection", err => console.error("UNHANDLED REJECTION:", err));
+process.on("uncaughtException", err => console.error("UNCAUGHT EXCEPTION:", err));
 
 const port = process.env.PORT || 8080;
 const host = "0.0.0.0";
