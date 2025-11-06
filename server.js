@@ -1,8 +1,9 @@
 import express from "express";
-import chromium from "@sparticuz/chromium";
-import playwright from "playwright-core";
+import { chromium } from "playwright";
 
 const app = express();
+
+app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.get("/api/scrape", async (req, res) => {
   try {
@@ -11,21 +12,25 @@ app.get("/api/scrape", async (req, res) => {
     if (!url || !wanted.length) return res.status(400).json({ error: "Missing url or fields" });
 
     const selectors = {
+      // Amazon (CA)
       price: ["#corePrice_feature_div .a-offscreen", "#priceblock_ourprice", "#priceblock_dealprice"],
       title: ["#productTitle"],
       rating: ["#acrPopover .a-icon-alt"],
+      // Costco (CA)
       c_price: ["meta[property='product:price:amount']"],
       c_title: ["meta[property='og:title']"]
     };
 
-    const executablePath = await chromium.executablePath();
-    const browser = await playwright.chromium.launch({
-      args: chromium.args,
-      headless: chromium.headless,
-      executablePath
+    const browser = await chromium.launch({
+      headless: true, // boolean, not a string
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
-    const page = await browser.newPage();
+    const page = await browser.newPage({
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121 Safari/537.36"
+    });
+
     await page.route("**/*", route => {
       const t = route.request().resourceType();
       if (["image", "media", "font"].includes(t)) return route.abort();
@@ -33,7 +38,7 @@ app.get("/api/scrape", async (req, res) => {
     });
 
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2500); // a bit more time for dynamic content
 
     const out = {};
     for (const key of wanted) {
@@ -65,5 +70,4 @@ app.get("/api/scrape", async (req, res) => {
 });
 
 const port = process.env.PORT || 8080;
-app.get("/health", (req, res) => res.json({ ok: true }));
 app.listen(port, () => console.log("listening on " + port));
