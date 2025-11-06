@@ -65,4 +65,5 @@ app.get("/api/scrape", async (req, res) => {
 });
 
 const port = process.env.PORT || 8080;
+app.get("/health", (req, res) => res.json({ ok: true }));
 app.listen(port, () => console.log("listening on " + port));
